@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'HotMovieItemWidget.dart';
 import 'HotMovieDate.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HotMoviesListWidget extends StatefulWidget {
   @override
@@ -11,23 +13,37 @@ class HotMoviesListWidget extends StatefulWidget {
 
 class HotMoviesListWidgetState extends State<HotMoviesListWidget> {
   List<HotMovieData> hotMovies = new List<HotMovieData>();
+  List<HotMovieData> serverDataList = new List();
+
+  void _getData() async {
+    List<HotMovieData> serverDataList = new List();
+    var response = await http.get(
+        'https://api.douban.com/v2/movie/in_theaters?apikey=0b2bdeda43b5688921839c8ecb20399b&city=%E6%B7%B1%E5%9C%B3&start=0&count=10&client=&udid=');
+    //成功获取数据
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body);
+      for (dynamic data in responseJson['subjects']) {
+        HotMovieData hotMovieData = HotMovieData.fromJson(data);
+        serverDataList.add(hotMovieData);
+      }
+      setState(() {
+        hotMovies = serverDataList;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    var data = HotMovieData('千と千尋', 9.9, '宫崎骏', ' 柊瑠美/入野自由/夏目真理', 999,
-        'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.webp');
-    setState(() {
-      hotMovies.add(data);
-      hotMovies.add(data);
-      hotMovies.add(data);
-      hotMovies.add(data);
-      hotMovies.add(data);
-      hotMovies.add(data);
-    });
+    _getData();
   }
 
   Widget build(BuildContext context) {
+    if (hotMovies == null || hotMovies.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return MediaQuery.removePadding(
         removeTop: true,
         context: context,
