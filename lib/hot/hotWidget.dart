@@ -11,7 +11,6 @@ class HotWidgetState extends State<HotWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Container(
             alignment: Alignment.bottomCenter,
